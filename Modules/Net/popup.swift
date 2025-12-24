@@ -473,7 +473,7 @@ internal class Popup: PopupWrapper {
                     self.dnsRowViews.removeAll()
                     self.dnsValueFields.removeAll()
                     
-                    if let container = self.addressView {
+                    if let container = self.detailsView {
                         for (idx, dns) in dnsList.enumerated() {
                             let titleBase = localizedString("DNS")
                             let title = dnsList.count > 1 ? "\(titleBase) \(idx + 1):" : "\(titleBase):"
@@ -498,11 +498,7 @@ internal class Popup: PopupWrapper {
                     if let addr = value.raddr.v4 {
                         if view.superview == nil {
                             if let container = self.addressView as? NSStackView {
-                                if let dnsView = self.dnsRowViews.first, let idx = container.arrangedSubviews.firstIndex(of: dnsView) {
-                                    container.insertArrangedSubview(view, at: idx)
-                                } else {
-                                    container.addArrangedSubview(view)
-                                }
+                                container.addArrangedSubview(view)
                             } else {
                                 self.addressView?.addArrangedSubview(view)
                             }
@@ -526,11 +522,7 @@ internal class Popup: PopupWrapper {
                     if let addr = value.raddr.v6 {
                         if view.superview == nil {
                             if let container = self.addressView as? NSStackView {
-                                if let dnsView = self.dnsRowViews.first, let idx = container.arrangedSubviews.firstIndex(of: dnsView) {
-                                    container.insertArrangedSubview(view, at: idx)
-                                } else {
-                                    container.addArrangedSubview(view)
-                                }
+                                container.addArrangedSubview(view)
                             } else {
                                 self.addressView?.addArrangedSubview(view)
                             }
