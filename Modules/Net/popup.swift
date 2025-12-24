@@ -474,12 +474,10 @@ internal class Popup: PopupWrapper {
                     self.dnsValueFields.removeAll()
                     
                     if let container = self.detailsView {
-                        for (idx, dns) in dnsList.enumerated() {
-                            let titleBase = localizedString("DNS")
-                            let title = dnsList.count > 1 ? "\(titleBase) \(idx + 1):" : "\(titleBase):"
-                            let row = popupRow(container, title: title, value: dns)
+                        for dns in dnsList {
+                            let row = popupRow(container, title: "\(dns.label):", value: dns.value)
                             row.1.isSelectable = true
-                            self.applyDNSCompactLayout(row.1, value: dns)
+                            self.applyDNSCompactLayout(row.1, value: dns.value)
                             self.dnsValueFields.append(row.1)
                             self.dnsRowViews.append(row.2)
                         }
@@ -487,10 +485,10 @@ internal class Popup: PopupWrapper {
                     resized = true
                 } else {
                     for (idx, dns) in dnsList.enumerated() where self.dnsValueFields.indices.contains(idx) {
-                        if self.dnsValueFields[idx].stringValue != dns {
-                            self.dnsValueFields[idx].stringValue = dns
+                        if self.dnsValueFields[idx].stringValue != dns.value {
+                            self.dnsValueFields[idx].stringValue = dns.value
                         }
-                        self.applyDNSCompactLayout(self.dnsValueFields[idx], value: dns)
+                        self.applyDNSCompactLayout(self.dnsValueFields[idx], value: dns.value)
                     }
                 }
                 
@@ -837,7 +835,7 @@ internal class Popup: PopupWrapper {
         self.downloadStateView?.setState(self.downloadValue != 0)
     }
     
-    private func filteredDNSServers(from servers: [String]) -> [String] {
+    private func filteredDNSServers(from servers: [String]) -> [(label: String, value: String)] {
         var ipv4: String?
         var ipv6: String?
         
@@ -861,16 +859,16 @@ internal class Popup: PopupWrapper {
             }
         }
         
-        var result: [String] = []
+        var result: [(label: String, value: String)] = []
         if let ipv4 = ipv4 {
-            result.append(ipv4)
+            result.append((label: "DNSv4", value: ipv4))
         }
         if let ipv6 = ipv6 {
-            result.append(ipv6)
+            result.append((label: "DNSv6", value: ipv6))
         }
         
         if result.isEmpty {
-            result.append(localizedString("Unknown"))
+            result.append((label: localizedString("DNS"), value: localizedString("Unknown")))
         }
         
         return result
