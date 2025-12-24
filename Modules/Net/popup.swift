@@ -467,7 +467,7 @@ internal class Popup: PopupWrapper {
                     self.localIPField?.stringValue = privateIP
                 }
                 
-                let dnsList = value.dnsServers.isEmpty ? [localizedString("Unknown")] : value.dnsServers
+                let dnsList = self.filteredDNSServers(from: value.dnsServers)
                 if dnsList.count != self.dnsValueFields.count {
                     self.dnsRowViews.forEach { $0.removeFromSuperview() }
                     self.dnsRowViews.removeAll()
@@ -835,6 +835,58 @@ internal class Popup: PopupWrapper {
         
         self.uploadStateView?.setState(self.uploadValue != 0)
         self.downloadStateView?.setState(self.downloadValue != 0)
+    }
+    
+    private func filteredDNSServers(from servers: [String]) -> [String] {
+        var ipv4: String?
+        var ipv6: String?
+        
+        for raw in servers {
+            let server = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            if server.isEmpty {
+                continue
+            }
+            let normalized = server.split(separator: "%").first.map(String.init) ?? server
+            
+            if ipv4 == nil, self.isIPv4(normalized) {
+                ipv4 = server
+                continue
+            }
+            if ipv6 == nil, self.isIPv6(normalized) {
+                ipv6 = server
+            }
+            
+            if ipv4 != nil && ipv6 != nil {
+                break
+            }
+        }
+        
+        var result: [String] = []
+        if let ipv4 = ipv4 {
+            result.append(ipv4)
+        }
+        if let ipv6 = ipv6 {
+            result.append(ipv6)
+        }
+        
+        if result.isEmpty {
+            result.append(localizedString("Unknown"))
+        }
+        
+        return result
+    }
+    
+    private func isIPv4(_ value: String) -> Bool {
+        let parts = value.split(separator: ".")
+        guard parts.count == 4 else { return false }
+        for part in parts {
+            guard let number = Int(part), number >= 0 && number < 256 else { return false }
+        }
+        return true
+    }
+    
+    private func isIPv6(_ value: String) -> Bool {
+        value.contains(":")
     }
     
     private func applyDNSCompactLayout(_ field: ValueField?, value: String) {
